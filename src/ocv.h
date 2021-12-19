@@ -10,12 +10,11 @@
 #include "leptonica/allheaders.h" //tesseract dependency
 #include "strings.h"
 #include "vector"
-#include "algorithm"
-#include <regex>
+#include "zbar.h"
 
 // Prototype Functions
 std::string ProcessAuto(cv::Mat);
 std::string ProcessQR(cv::Mat);
 std::string ProcessImg(cv::Mat);
 
-#endif //OCV_H/version:
+#endif //OCV_H

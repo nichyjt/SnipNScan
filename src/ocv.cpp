@@ -56,8 +56,23 @@ bool isDominantDark(cv::Mat grayscaled){
 
 // Handle QR code processing logic
 std::string ProcessQR(cv::Mat mat){
-    cv::QRCodeDetector qrDecoder = cv::QRCodeDetector();
-    std::string output = qrDecoder.detectAndDecode(mat);
+    // Pre-process QR code
+    cv::Mat gray;
+    cv::cvtColor(mat, gray, cv::COLOR_BGR2GRAY);
+    // Wrap mat in zbar data format
+    zbar::Image zimg(gray.cols, gray.rows, "Y800", (uchar*) gray.data, gray.cols*gray.rows);
+    zbar::ImageScanner zscanner;
+    zscanner.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1);
+    // Scan
+    zscanner.scan(zimg);
+    // Iterate through and build string from decoded results
+    std::string output;
+    for(auto symbol = zimg.symbol_begin(); symbol != zimg.symbol_end(); ++symbol){
+        // Safety check
+        if(symbol->get_type() == zbar::ZBAR_QRCODE){
+            output.append(symbol->get_data());
+        }
+    }
     return output;
 }
 
@@ -118,7 +133,7 @@ std::string ProcessImg(cv::Mat mat){
         cv::Mat cropped = scannable(roi);
         int ht = cropped.size().height;
         int wd = cropped.size().width;
-        imshow(std::to_string(idx), cropped); // debug
+        // imshow(std::to_string(idx), cropped); // debug
         tapi->SetImage(cropped.data, wd, ht, cropped.channels(), cropped.step1());
         tapi->SetSourceResolution(300);
         if(!(tapi->Recognize(0))){
