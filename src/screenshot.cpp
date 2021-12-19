@@ -56,7 +56,9 @@ void Canvas::OnMouseUp(wxMouseEvent& event){
            SnipWin* snipwin = (SnipWin*) wxWindow::FindWindowById(WINDOW_SNIP);
            snipwin->Close();
         }else{
-            wxLogMessage("Selected Area is too small, try again!");
+            std::string msg;
+            msg.append("Selected area is too small, try again!");
+            wxMessageBox( msg, "Information", wxOK | wxICON_INFORMATION );
         }
         
     }
