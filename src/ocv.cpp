@@ -4,8 +4,7 @@
 
 // Utility function to check if the image's dominant (background) color is dark
 bool isDominantDark(cv::Mat grayscaled){
-    // Adapted from:
-    // https://stackoverflow.com/questions/15771512/compare-histograms-of-grayscale-images-in-opencv/15773817
+    // Adapted from: https://stackoverflow.com/questions/15771512/compare-histograms-of-grayscale-images-in-opencv/15773817
     int bins = 256;
     int histSize[] = {bins};
     // Set ranges for histogram bins
@@ -108,6 +107,7 @@ std::string ProcessImg(cv::Mat mat){
         cv::ADAPTIVE_THRESH_MEAN_C, cv::THRESH_BINARY,
         25, c
         );
+        
     // Denoise as redundancy
     cv::fastNlMeansDenoising(scannable, scannable);
 

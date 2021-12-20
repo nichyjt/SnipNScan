@@ -1,7 +1,6 @@
 #include "screenshot.h"
 
 /* ----- CANVAS CLASS SETUP ----- */
-//Canvas Event Handler/Method Definitions
 wxBEGIN_EVENT_TABLE(Canvas, wxScrolledWindow)
 EVT_PAINT(Canvas::OnPaint)
 EVT_MOTION(Canvas::OnMouseMove)
@@ -177,11 +176,8 @@ void SnipWin::OnCancel(wxCommandEvent& event){
 // Called when Close() or 'x' is clicked
 void SnipWin::OnExit(wxCloseEvent& event){
     MainWin* mainwin = (MainWin*) wxWindow::FindWindowById(WINDOW_MAIN);
-    // std::cout << (mainwin == nullptr) << std::endl;
     mainwin->Show();
     Canvas* canvas = (Canvas*) wxWindow::FindWindowById(BITMAP_SCREENSHOT);
-    // canvas->screenshot = wxNullBitmap;
-    // Destroy() assumed to free up memory
     this->Destroy();
 }
 

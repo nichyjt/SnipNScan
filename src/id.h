@@ -1,8 +1,6 @@
 #ifndef ID_H
 #define ID_H
 
-// UNIQUE IDENTIFIER OVERALL CONTROL
-
 enum DROPMENU_MODE{
     DETECT_AUTO = 0,
     DETECT_QR = 1,

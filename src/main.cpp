@@ -2,16 +2,16 @@
 #include "id.h"
 #include "screenshot.h"
 #include "ocv.h"
-// Nicholas Yek © 2021
 
-/* ----- MAIN ----- 
-* This file contains the primary UI logic of the app using wxWidgets
-* Its main function is to control main UI as well as states between screenshot phase
+
+/* ----- SNIPNSCAN -----
+* Nicholas Yek © 2021 github.com/nichyjt 
+* 
+* This file contains the overall wrapping logic of the UI with wxWidgets
+* This file also defines backend calls to handle OpenCV parsing of snapshots, ..
+* .. as well as calling the screenshot phase UI logic
+* 
 */
-
-// Prototype fns
-wxTextCtrl* getOutputTextbox();
-void write_output_text(std::string&);
 
 // Define a new class from wxapp to initialise window
 class MyApp : public wxApp {
@@ -68,13 +68,11 @@ MainWin::MainWin(wxWindowID id, const wxString& title, const wxPoint& pos, const
     choice->SetSelection(0);
     TopCtlCont->Add(20, 10, 0);
 
-    BtmBtnCont->Add(20,10,0);
+    BtmBtnCont->Add(10,10,0);
     BtmBtnCont->Add(
         new wxButton(this, BUTTON_Copy, _T("Copy"), wxDefaultPosition, wxDefaultSize, 0),
         0, wxALL | wxALIGN_CENTER, 5
     );
-    // Add Padding
-    BtmBtnCont->Add(10,10,0);
     BtmCtlCont->Add(
         new wxTextCtrl(this, TEXT_Output, "Hey there!\n\nClick \"Scan Stuff\" to get open the snipping tool to scan your text!",
          wxDefaultPosition, wxSize(100,100), 
@@ -84,6 +82,7 @@ MainWin::MainWin(wxWindowID id, const wxString& title, const wxPoint& pos, const
     BtmCtlCont->Add(
         BtmBtnCont, 0, wxEXPAND, 10
     );
+    BtmCtlCont->Add(10,10,0);
     TopSizer->Add(0,10,0);
     TopSizer->Add(
         TopCtlCont, 0, wxEXPAND, 10
@@ -99,9 +98,10 @@ MainWin::MainWin(wxWindowID id, const wxString& title, const wxPoint& pos, const
 
 void MainWin::OnAbout(wxCommandEvent& event){
     std::string msg;
-    msg.append("SnipNScan, a lightweight QR code and text/url scanner.\nPowered by OpenCV and Tesseract.\n\n");
-    msg.append("Developed by Nicholas @ github.com/nichyjt/ \n\n");
-    msg.append("Licensed under GPLv3");
+    msg.append("SnipNScan, a lightweight QR code and text/url scanner.\nPowered by OpenCV, Tesseract & zbar.\n\n");
+    msg.append("Developed by Nicholas @ github.com/nichyjt \n\n");
+    msg.append("For help/information, visit github.com/nichyjt/SnipNScan\n\n");
+    msg.append("Licensed under Affero GPLv3");
     wxMessageBox( msg, "About", wxOK | wxICON_INFORMATION );
 }
 
@@ -135,12 +135,10 @@ void MainWin::OnOpenLink(wxTextUrlEvent& event){
         long start = event.GetURLStart(), end = event.GetURLEnd();
         wxTextCtrl* tctl = (wxTextCtrl*) this->FindWindowById(TEXT_Output);
         wxString urlstr = tctl->GetValue().Mid(start,end-start);
-        // wxLogMessage("Click detected %s", urlstr);
         wxLaunchDefaultBrowser(urlstr);
     }
 }
 
-// Event Handler Declaration (macro) For mainwindow
 wxBEGIN_EVENT_TABLE(MainWin, wxFrame)
     EVT_MENU(wxID_ABOUT, MainWin::OnAbout)
     EVT_BUTTON(BUTTON_Snip, MainWin::OnSnip)
@@ -155,7 +153,6 @@ wxIMPLEMENT_APP(MyApp);
 // DRIVER LOGIC FOR MAIN WINDOW
 bool MyApp::OnInit(){
     MainWin* frame = new MainWin(WINDOW_MAIN, "SnipNScan", wxPoint(100,100), wxSize(450,280), wxDEFAULT_FRAME_STYLE & ~wxRESIZE_BORDER & ~wxMAXIMIZE_BOX);
-    // std::cout << frame->GetId() << std::endl;
     frame->Show(true);
     wxInitAllImageHandlers();
     return true;
@@ -172,7 +169,7 @@ wxTextCtrl* getOutputTextbox(){
 cv::Mat matFromWx(wxBitmap bmp){
     wxImage ibmp = bmp.ConvertToImage();
     unsigned char* rawdata = ibmp.GetData();
-    ibmp.SaveFile("cropbm.bmp", wxBITMAP_TYPE_BMP);
+    // ibmp.SaveFile("cropbm.bmp", wxBITMAP_TYPE_BMP); //debug
     cv::Mat img(cv::Size(ibmp.GetWidth(), ibmp.GetHeight()), CV_8UC3, rawdata);
     cvtColor(img, img, cv::COLOR_RGB2BGR);
     return img;
@@ -181,7 +178,6 @@ cv::Mat matFromWx(wxBitmap bmp){
 void ValidateTextLength(std::string& str){
     // Handle UI logic for str of length 0 or other funny ctrl chars
     if(str.length()<=0 || str.find_first_not_of(" \t\n\v\f\r") == std::string::npos){
-        std::cout << "Empty" << std::endl;
         MainWin* mwref = (MainWin*) wxWindow::FindWindowById(WINDOW_MAIN);
         wxMessageDialog* dia = new wxMessageDialog(mwref, 
         "Nothing found. Try scanning again in a larger area!", "Nothing Found");
@@ -195,19 +191,6 @@ void write_output_text(std::string& str){
     wxTextCtrl* txtbox = getOutputTextbox();
     txtbox->Clear();
     txtbox->SetInsertionPoint(0);
-    // Handle non-ascii characters and multiple \n chars..
-    // .. to ensure compatability with textctl
-    // Note: Not factored out into another function as it will..
-    // ..add O(n) in time and waste some space
-    // char prev;
-    // for(char c : str){
-    //     if(isascii(c)){
-    //         // Do not print consecutive newlines
-    //         if(!(prev == '\n' && c == prev))
-    //             (*txtbox) << c;
-    //         prev = c;
-    //     }
-    // }
     wxString wxstr = wxString::FromUTF8(str.c_str());
     txtbox->WriteText(wxstr);
 }

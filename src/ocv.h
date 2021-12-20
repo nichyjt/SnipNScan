@@ -10,7 +10,6 @@
 #include "leptonica/allheaders.h" //tesseract dependency
 #include "strings.h"
 #include "vector"
-#include "zbar.h"
 
 // Prototype Functions
 std::string ProcessAuto(cv::Mat);

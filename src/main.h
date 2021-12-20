@@ -39,6 +39,8 @@ class MainWin : public wxFrame{
         wxDECLARE_EVENT_TABLE(); 
 };
 
-// Common modules
+// Prototype fns
+wxTextCtrl* getOutputTextbox();
+void write_output_text(std::string&);
 
 #endif //MAIN

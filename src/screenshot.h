@@ -1,15 +1,8 @@
-// Header file for Screenshot.cpp for succinctness
 #ifndef SCREENSHOT
 #define SCREENSHOT
 
 #include "id.h"
 #include "main.h"
-
-/* THIS FILE CONTAINS BOILERCODE DECLARATIONS FOR:
-1. SNIPWIN CLASS
-2. CANVAS CLASS 
-3. SCREENSHOT LOGIC FNS
-*/
 
 class SnipWin : public wxFrame{
     public:
